@@ -1,0 +1,14 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+/* The location scene manages its own overflow/background per-route;
+   keep the global body free of forced overflow so the city map page
+   (which is taller than one viewport) can scroll normally. */
+body {
+  background: #1b3a5c;
+}

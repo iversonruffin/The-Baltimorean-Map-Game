@@ -1,0 +1,59 @@
+<div id="modal-overlay" [class.active]="active" (click)="$event.target === $event.currentTarget && close()">
+  <div id="guide-modal">
+    <button id="modal-close" aria-label="Close" (click)="close()">&times;</button>
+
+    <!-- Guide view -->
+    <div id="guide-view" *ngIf="view === 'guide'">
+      <div class="modal-kicker">Field Guide</div>
+      <h2>{{ hotspot.name }}</h2>
+      <p>{{ hotspot.guideBlurb }}</p>
+
+      <div class="guide-facts">
+        <div class="fact" *ngIf="hotspot.founded">
+          <span class="fact-label">Founded</span><span class="fact-value">{{ hotspot.founded }}</span>
+        </div>
+        <div class="fact">
+          <span class="fact-label">Type</span><span class="fact-value">{{ hotspot.category }}</span>
+        </div>
+        <div class="fact" *ngIf="hotspot.knownFor">
+          <span class="fact-label">Known for</span><span class="fact-value">{{ hotspot.knownFor }}</span>
+        </div>
+      </div>
+
+      <div id="story-item" tabindex="0" role="button" (click)="showStory()" (keydown.enter)="showStory()">
+        <span class="story-icon">📖</span>
+        <div class="story-text">
+          <div class="story-title">A Story from {{ hotspot.name }}</div>
+          <div class="story-sub">{{ hotspot.story.title }} — tap to read</div>
+        </div>
+        <span class="story-arrow">›</span>
+      </div>
+
+      <button id="start-challenge" *ngIf="!progress.isHotspotCompleted(hotspot.id)" (click)="showChallenge()">
+        Start Challenge
+      </button>
+      <div id="already-complete" *ngIf="progress.isHotspotCompleted(hotspot.id)">
+        <span class="badge-icon">{{ hotspot.badge.icon }}</span>
+        Badge earned: <strong>{{ hotspot.badge.name }}</strong>
+        <button id="retry-challenge" (click)="showChallenge()">Play again</button>
+      </div>
+    </div>
+
+    <!-- Story view -->
+    <div id="story-view" *ngIf="view === 'story'">
+      <button id="story-back" (click)="showGuide()">‹ Back to guide</button>
+      <div class="modal-kicker">Story</div>
+      <h2>{{ hotspot.story.title }}</h2>
+      <p>{{ hotspot.story.body }}</p>
+      <p class="story-footer" *ngIf="hotspot.story.footer">{{ hotspot.story.footer }}</p>
+    </div>
+
+    <!-- Challenge view -->
+    <div id="challenge-view" *ngIf="view === 'challenge'">
+      <button id="story-back" (click)="showGuide()">‹ Back to guide</button>
+      <div class="modal-kicker">Challenge</div>
+      <h2>{{ hotspot.name }} Trivia</h2>
+      <app-trivia-challenge [hotspot]="hotspot" (finished)="onChallengeFinished()"></app-trivia-challenge>
+    </div>
+  </div>
+</div>

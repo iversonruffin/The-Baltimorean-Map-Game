@@ -1,0 +1,427 @@
+<!-- 
+  THE ABSTRACT CATARACT MACHINE
+  A mystery-box name generator slot machine.
+  Drop this whole block anywhere in your page's HTML. It's self-contained
+  (styles + script are scoped/prefixed with "acm-" so it won't clash with
+  your site's existing CSS).
+-->
+<div class="acm-wrap">
+  <div class="acm-marquee">
+    <span class="acm-marquee-text">✦ THE ABSTRACT CATARACT MACHINE ✦</span>
+  </div>
+
+  <div class="acm-cabinet">
+    <div class="acm-bulbs" aria-hidden="true"></div>
+
+    <div class="acm-reels">
+      <div class="acm-reel-unit">
+        <div class="acm-reel-window">
+          <div class="acm-reel-strip" id="acmReelAdjective"></div>
+          <div class="acm-reel-shade"></div>
+        </div>
+        <div class="acm-reel-label">adjective</div>
+      </div>
+      <div class="acm-reel-unit">
+        <div class="acm-reel-window">
+          <div class="acm-reel-strip" id="acmReelNoun"></div>
+          <div class="acm-reel-shade"></div>
+        </div>
+        <div class="acm-reel-label">noun</div>
+      </div>
+      <div class="acm-reel-unit">
+        <div class="acm-reel-window">
+          <div class="acm-reel-strip" id="acmReelVerb"></div>
+          <div class="acm-reel-shade"></div>
+        </div>
+        <div class="acm-reel-label">verb</div>
+      </div>
+    </div>
+
+    <p class="acm-quip" id="acmQuip">Pull the lever. See what you get.</p>
+  </div>
+
+  <button class="acm-generate-btn" id="acmGenerateBtn" type="button">Generate!</button>
+
+  <div class="acm-output" id="acmOutput" hidden>
+    <div class="acm-output-label">Your mystery box:</div>
+    <div class="acm-output-text" id="acmOutputText"></div>
+    <button class="acm-copy-btn" id="acmCopyBtn" type="button">Copy</button>
+  </div>
+</div>
+
+<style>
+  .acm-wrap {
+    --acm-bg-1: #1a1024;
+    --acm-bg-2: #241536;
+    --acm-gold: #ffc94a;
+    --acm-pink: #ff4fa3;
+    --acm-blue: #3fc9ff;
+    --acm-blue-dark: #1c88b3;
+    --acm-cream: #f6ecd9;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    max-width: 780px;
+    margin: 2rem auto;
+    padding: 1.5rem 1.25rem 2rem;
+    background: radial-gradient(ellipse at top, var(--acm-bg-2), var(--acm-bg-1) 70%);
+    border-radius: 22px;
+    box-shadow:
+      0 0 0 3px #0c0714,
+      0 0 0 6px #3a2650,
+      0 20px 50px rgba(0,0,0,0.5),
+      inset 0 0 60px rgba(255, 79, 163, 0.08);
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .acm-wrap * { box-sizing: border-box; }
+
+  @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Space+Mono:wght@400;700&display=swap');
+
+  .acm-marquee {
+    font-family: 'Bungee', 'Space Mono', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    color: var(--acm-gold);
+    text-shadow:
+      0 0 6px var(--acm-gold),
+      0 0 18px rgba(255, 201, 74, 0.6);
+    padding: 0.6rem 0.5rem;
+    margin-bottom: 1.1rem;
+    border: 2px solid var(--acm-gold);
+    border-radius: 999px;
+    background: rgba(0,0,0,0.25);
+    animation: acm-flicker 3.2s infinite ease-in-out;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .acm-marquee-text { display: inline-block; }
+
+  @keyframes acm-flicker {
+    0%, 92%, 100% { opacity: 1; }
+    93% { opacity: 0.55; }
+    94% { opacity: 1; }
+    95% { opacity: 0.4; }
+    96% { opacity: 1; }
+  }
+
+  .acm-cabinet {
+    background: linear-gradient(180deg, #2c1c42, #1c1230);
+    border-radius: 16px;
+    padding: 1.4rem 1rem 1.1rem;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  }
+
+  .acm-bulbs {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    pointer-events: none;
+    background-image: radial-gradient(circle, var(--acm-pink) 1.5px, transparent 1.6px);
+    background-size: 26px 26px;
+    background-position: 4px 4px;
+    opacity: 0.35;
+    -webkit-mask-image: linear-gradient(180deg, black, transparent 20%, transparent 80%, black);
+            mask-image: linear-gradient(180deg, black, transparent 20%, transparent 80%, black);
+  }
+
+  .acm-reels {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .acm-reel-unit { flex: 1; min-width: 0; }
+
+  .acm-reel-window {
+    position: relative;
+    height: 64px;
+    overflow: hidden;
+    background: var(--acm-cream);
+    border-radius: 8px;
+    box-shadow:
+      inset 0 3px 6px rgba(0,0,0,0.45),
+      inset 0 -3px 6px rgba(0,0,0,0.25),
+      0 0 0 3px #0c0714,
+      0 0 0 4px var(--acm-blue);
+  }
+
+  .acm-reel-strip {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    transform: translateY(0);
+  }
+
+  .acm-reel-strip div {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #241536;
+    padding: 0 0.35rem;
+    text-align: center;
+    line-height: 1.15;
+  }
+
+  .acm-reel-shade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.35) 0%,
+      rgba(0,0,0,0) 30%,
+      rgba(0,0,0,0) 70%,
+      rgba(0,0,0,0.35) 100%);
+  }
+
+  .acm-reel-label {
+    margin-top: 0.4rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--acm-blue);
+    opacity: 0.85;
+  }
+
+  .acm-quip {
+    margin: 1rem 0 0.1rem;
+    min-height: 1.4em;
+    color: var(--acm-cream);
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+
+  .acm-generate-btn {
+    margin-top: 1.4rem;
+    font-family: 'Bungee', 'Space Mono', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    color: #06212e;
+    background: linear-gradient(180deg, #7fe0ff, var(--acm-blue) 55%, var(--acm-blue-dark));
+    border: none;
+    padding: 0.85rem 2.4rem;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow:
+      0 5px 0 #0c5978,
+      0 10px 20px rgba(63, 201, 255, 0.35);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .acm-generate-btn:hover { filter: brightness(1.05); }
+  .acm-generate-btn:active {
+    transform: translateY(4px);
+    box-shadow:
+      0 1px 0 #0c5978,
+      0 4px 10px rgba(63, 201, 255, 0.35);
+  }
+  .acm-generate-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .acm-generate-btn:focus-visible {
+    outline: 3px solid var(--acm-gold);
+    outline-offset: 3px;
+  }
+
+  .acm-output {
+    margin-top: 1.4rem;
+    background: rgba(0,0,0,0.3);
+    border: 1px dashed var(--acm-pink);
+    border-radius: 12px;
+    padding: 0.9rem 1rem 1rem;
+  }
+
+  .acm-output-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--acm-pink);
+    margin-bottom: 0.4rem;
+  }
+
+  .acm-output-text {
+    color: var(--acm-cream);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+    user-select: all;
+    word-break: break-word;
+  }
+
+  .acm-copy-btn {
+    margin-top: 0.7rem;
+    font-family: inherit;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--acm-cream);
+    background: transparent;
+    border: 1px solid var(--acm-cream);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .acm-copy-btn:hover {
+    background: var(--acm-cream);
+    color: #241536;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .acm-marquee { animation: none; }
+    .acm-reel-strip { transition: none !important; }
+  }
+</style>
+
+<script>
+(function () {
+  var ADJECTIVES = ["Soggy","Feral","Velvet","Cursed","Lopsided","Glittery","Ancient","Suspicious","Buttery","Chaotic","Sneaky","Radioactive","Wobbly","Haunted","Squeaky","Prickly","Melancholy","Turbo","Invisible","Crusty","Majestic","Sticky","Forbidden","Gigantic","Microscopic","Feisty","Ominous","Elastic","Frostbitten","Illegal"];
+  var NOUNS = ["Raccoon","Toaster","Wizard","Casserole","Accordion","Gremlin","Volcano","Sandwich","Trombone","Octopus","Landlord","Pinecone","Zombie","Mannequin","Pancake","Hurricane","Gargoyle","Spreadsheet","Walrus","Cactus","Satellite","Meatball","Pirate","Kazoo","Hamster","Lawnmower","Goblin","Umbrella","Doughnut","Bagpipe"];
+  var VERBS = ["Wobbles","Explodes","Whispers","Yeets","Combusts","Giggles","Rebels","Melts","Teleports","Sneezes","Unravels","Levitates","Panics","Multiplies","Vibrates","Escapes","Ferments","Glitches","Pirouettes","Malfunctions","Ricochets","Hibernates","Screeches","Dissolves","Ignites","Wanders","Mutates","Collides","Simmers","Detonates"];
+
+  var QUIPS = [
+    "Ooo, we caught a big one!",
+    "This one seems pretty good, eh?",
+    "The machine approves. Mostly.",
+    "That's... legally a name now.",
+    "Patent pending on this masterpiece.",
+    "The reels have spoken. No refunds.",
+    "Somewhere, a marketing team is crying.",
+    "Ten out of ten, would mystery-box again.",
+    "This one's got range.",
+    "We don't make the rules. We just spin.",
+    "Print it on a box. Ship it. Don't ask questions.",
+    "The cataract has cleared. Vision achieved.",
+    "Certified fresh out of the machine.",
+    "Not our best work, but it's work.",
+    "That's a keeper. Or a cursed object. Time will tell."
+  ];
+
+  var reels = {
+    adjective: { el: document.getElementById('acmReelAdjective'), list: ADJECTIVES },
+    noun:      { el: document.getElementById('acmReelNoun'),      list: NOUNS },
+    verb:      { el: document.getElementById('acmReelVerb'),      list: VERBS }
+  };
+
+  var ITEM_HEIGHT = 64;
+  var btn = document.getElementById('acmGenerateBtn');
+  var quipEl = document.getElementById('acmQuip');
+  var outputWrap = document.getElementById('acmOutput');
+  var outputText = document.getElementById('acmOutputText');
+  var copyBtn = document.getElementById('acmCopyBtn');
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function initReel(reel) {
+    reel.el.style.transition = 'none';
+    reel.el.style.transform = 'translateY(0px)';
+    reel.el.innerHTML = '';
+    var div = document.createElement('div');
+    div.textContent = pick(reel.list);
+    reel.el.appendChild(div);
+  }
+
+  function spinReel(reel, delayMs, durationMs) {
+    return new Promise(function (resolve) {
+      var finalWord = pick(reel.list);
+      var spinCount = 18 + Math.floor(Math.random() * 6);
+      var items = [];
+      for (var i = 0; i < spinCount; i++) {
+        items.push(pick(reel.list));
+      }
+      items.push(finalWord);
+
+      reel.el.style.transition = 'none';
+      reel.el.style.transform = 'translateY(0px)';
+      reel.el.innerHTML = '';
+      items.forEach(function (word) {
+        var div = document.createElement('div');
+        div.textContent = word;
+        reel.el.appendChild(div);
+      });
+
+      var totalOffset = (items.length - 1) * ITEM_HEIGHT;
+
+      setTimeout(function () {
+        reel.el.getBoundingClientRect();
+        reel.el.style.transition = 'transform ' + durationMs + 'ms cubic-bezier(0.12, 0.7, 0.16, 1)';
+        reel.el.style.transform = 'translateY(-' + totalOffset + 'px)';
+
+        setTimeout(function () {
+          resolve(finalWord);
+        }, durationMs + 30);
+      }, delayMs);
+    });
+  }
+
+  function setBusy(isBusy) {
+    btn.disabled = isBusy;
+    btn.textContent = isBusy ? 'Spinning...' : 'Generate!';
+  }
+
+  function generate() {
+    setBusy(true);
+    outputWrap.hidden = true;
+    quipEl.textContent = 'Spinning...';
+
+    Promise.all([
+      spinReel(reels.adjective, 0,   1100),
+      spinReel(reels.noun,      180, 1400),
+      spinReel(reels.verb,      360, 1700)
+    ]).then(function (results) {
+      var adjective = results[0];
+      var noun = results[1];
+      var verb = results[2];
+      var phrase = adjective + ' ' + noun + ' ' + verb;
+
+      outputText.textContent = phrase;
+      outputWrap.hidden = false;
+      quipEl.textContent = pick(QUIPS);
+      setBusy(false);
+    });
+  }
+
+  copyBtn.addEventListener('click', function () {
+  /*
+    var text = outputText.textContent;
+    var restoreLabel = 'Copy';
+    function flash(label) {
+      copyBtn.textContent = label;
+      setTimeout(function () { copyBtn.textContent = restoreLabel; }, 1200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        flash('Copied!');
+      }).catch(function () {
+        flash('Copy failed');
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); flash('Copied!'); }
+      catch (e) {  console.error(err); flash('Copy failed'); }
+      document.body.removeChild(ta);
+    }
+      */
+    
+  });
+
+  btn.addEventListener('click', generate);
+
+  initReel(reels.adjective);
+  initReel(reels.noun);
+  initReel(reels.verb);
+  
+  console.log(window.isSecureContext);
+})();
+</script>

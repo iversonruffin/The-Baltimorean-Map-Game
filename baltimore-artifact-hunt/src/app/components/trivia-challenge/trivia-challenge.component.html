@@ -1,0 +1,38 @@
+<div class="trivia-wrap" *ngIf="!isDone">
+  <div class="trivia-header">
+    <span class="trivia-progress">Question {{ questionIndex + 1 }} / {{ questions.length }}</span>
+    <span class="trivia-timer" [class.low]="secondsLeft <= 3">{{ secondsLeft }}s</span>
+  </div>
+
+  <h3 class="trivia-prompt">{{ currentQuestion?.prompt }}</h3>
+
+  <div class="trivia-choices">
+    <button
+      *ngFor="let choice of currentQuestion?.choices; let i = index"
+      class="trivia-choice"
+      [class.selected]="selectedChoice === i"
+      [class.correct]="answerState !== 'unanswered' && i === currentQuestion?.correctIndex"
+      [class.incorrect]="answerState === 'incorrect' && selectedChoice === i"
+      [disabled]="answerState !== 'unanswered'"
+      (click)="selectAnswer(i)"
+    >
+      {{ choice }}
+    </button>
+  </div>
+
+  <p class="trivia-feedback" *ngIf="answerState === 'timeout'">Time's up!</p>
+  <p class="trivia-feedback" *ngIf="answerState === 'correct'">Correct! 🎉</p>
+  <p class="trivia-feedback" *ngIf="answerState === 'incorrect'">Not quite.</p>
+</div>
+
+<div class="trivia-results" *ngIf="isDone">
+  <div class="trivia-badge-icon">{{ hotspot.badge.icon }}</div>
+  <h3>{{ correctCount }} / {{ questions.length }} correct</h3>
+  <p class="trivia-score">Score: {{ score }} pts</p>
+  <p class="trivia-badge-earned" *ngIf="correctCount > 0">
+    Badge earned: <strong>{{ hotspot.badge.name }}</strong>
+  </p>
+  <p class="trivia-badge-earned" *ngIf="correctCount === 0">
+    No badge this time — give it another shot!
+  </p>
+</div>

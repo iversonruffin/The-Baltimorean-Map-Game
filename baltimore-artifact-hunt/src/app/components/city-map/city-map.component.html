@@ -1,0 +1,20 @@
+<div class="city-map-wrap">
+  <header class="city-header">
+    <p class="kicker">Abstract Cataract presents</p>
+    <h1>Baltimore Artifact Hunt</h1>
+    <p class="subhead">Scan a hotspot's QR code out in the city, or pick a location below to explore from here.</p>
+  </header>
+
+  <div class="badge-shelf" *ngIf="progress.earnedBadges().length > 0">
+    <span class="badge-shelf-label">Your badges:</span>
+    <span class="badge-pill" *ngFor="let b of progress.earnedBadges()" [title]="b.description">{{ b.icon }} {{ b.name }}</span>
+  </div>
+
+  <div class="location-grid">
+    <a class="location-card" *ngFor="let loc of locations" [routerLink]="['/location', loc.id]">
+      <h2>{{ loc.name }}</h2>
+      <p>{{ loc.tagline }}</p>
+      <app-progress-bar [pct]="progress.getLocationProgressPct(loc.id)"></app-progress-bar>
+    </a>
+  </div>
+</div>
