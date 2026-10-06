@@ -123,8 +123,13 @@
           }
         },
         "deploy": {
-          "builder": "angular-cli-ghpages:deploy"
-        }
+  "builder": "angular-cli-ghpages:deploy",
+  "options": {
+    "dir": "dist/baltimore-artifact-hunt/browser",
+    "baseHref": "/The-Baltimorean-Map-Game/"
+  }
+}
+
       }
     }
   }
